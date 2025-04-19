@@ -1,0 +1,41 @@
+// Contenedor principal de la pizarra y sus elementos
+.pizarra-container {
+    display: flex;                 // Usa flexbox para organizar el contenido verticalmente
+    flex-direction: column;        // Coloca los elementos uno debajo del otro
+    align-items: center;           // Centra todos los elementos horizontalmente
+    gap: 1rem;                     // Espacio entre los elementos hijos
+    padding: 1rem;                 // Margen interno alrededor del contenido
+    text-align: center;            // Centra el texto contenido (como el número aleatorio)
+  
+    // Estilo del texto que muestra el número a reconocer
+    .numero-a-reconocer {
+      font-size: 1.25rem;          // Tamaño de fuente ligeramente más grande
+    }
+  
+    // Contenedor del canvas (para hacerlo responsivo)
+    .canvas-wrapper {
+      width: 100%;                 // Ocupa todo el ancho del contenedor padre
+      max-width: 800px;            // Limita el ancho máximo para pantallas grandes
+      border: 2px solid black;     // Borde visible alrededor del canvas
+  
+      canvas {
+        width: 100%;               // El canvas escala visualmente con el contenedor
+        height: auto;              // Mantiene la proporción de aspecto
+        display: block;            // Elimina espacios extra debajo del canvas
+      }
+    }
+  
+    // Contenedor de los botones de acción (limpiar y validar)
+    .botones {
+      display: flex;               // Coloca los botones uno al lado del otro
+      gap: 1rem;                   // Espacio entre los botones
+      flex-wrap: wrap;             // Permite que se acomoden en varias líneas si no hay espacio
+      justify-content: center;    // Centra los botones horizontalmente
+  
+      .button {
+        min-width: 140px;          // Asegura que los botones tengan un tamaño mínimo legible
+      }
+    }
+  }
+  
+  
