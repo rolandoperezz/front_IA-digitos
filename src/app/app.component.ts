@@ -166,7 +166,7 @@ export class AppComponent {
             this.esCorrecto = JSON.stringify(this.resultadoBackend) === JSON.stringify(generado);
 
             if (this.esCorrecto) {
-              this.not_success('Numero Correcto');
+              this.not_success('Numero reconocido correctamente por Modelo' + `${JSON.stringify(this.resultadoBackend)}`);
             } else {
               this.not_warning('Numero reconocido: ' + `${JSON.stringify(this.resultadoBackend)}`);
             }
