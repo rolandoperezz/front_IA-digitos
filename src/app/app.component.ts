@@ -25,8 +25,14 @@ export class AppComponent {
   // Variable booleana que indica si la predicción fue correcta
   esCorrecto: boolean | null = null;
 
+  numeroLetras:any
+  factorial:any
+
   // Referencia al elemento canvas en el DOM
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  // @ViewChild('video', { static: false }) videoRef!: ElementRef<HTMLVideoElement>;
+
 
   // Contexto de dibujo del canvas
   private ctx!: CanvasRenderingContext2D;
@@ -53,7 +59,61 @@ export class AppComponent {
   // Lógica que se ejecuta al iniciar el componente (antes del render)
   ngOnInit(): void {
     this.mostrarNuevoNumero();
+    // this.startCamera()
   }
+
+    // Accede a la cámara del dispositivo
+    // Función para iniciar la cámara
+    // startCamera(): void {
+    //   const video = this.videoRef.nativeElement;
+  
+    //   // Acceder a la cámara y mostrarla en el elemento video
+    //   navigator.mediaDevices.getUserMedia({ video: true })
+    //     .then((stream) => {
+    //       video.srcObject = stream;
+    //     })
+    //     .catch((err) => {
+    //       console.error('❌ Error al acceder a la cámara:', err);
+    //     });
+    // }
+
+    // Este método se llama cuando el usuario selecciona un archivo
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.loadImage(file);
+    }
+  }
+
+  
+  // Carga la imagen seleccionada en el canvas
+  loadImage(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      const img = new Image();
+      img.src = e.target.result;
+      
+      img.onload = () => {
+        const canvas = this.canvasRef.nativeElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        
+        // Ajusta el tamaño del canvas según las dimensiones de la imagen
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Dibuja la imagen en el canvas
+        ctx.drawImage(img, 0, 0);
+      };
+    };
+    
+    reader.readAsDataURL(file); // Leer el archivo como URL
+  }
+
+  
+
+  
+    
+  
 
   // Detecta si el dispositivo soporta entrada táctil
   esDispositivoTactil(): boolean {
@@ -62,6 +122,13 @@ export class AppComponent {
 
   // Se ejecuta una vez el componente y el DOM han sido renderizados
   ngAfterViewInit(): void {
+
+    // if (this.videoRef) {
+    //   this.startCamera();
+    // } else {
+    //   console.error('❌ Error: videoRef no está inicializado correctamente');
+    // }
+
     const canvas = this.canvasRef.nativeElement;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -180,6 +247,70 @@ export class AppComponent {
     }, 'image/png');
   }
 
+  capturarImagen(): void {
+    Loading.arrows(); // Muestra animación de carga
+    const canvas = this.canvasRef.nativeElement;
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const archivo = new File([blob], 'captura.png', { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', archivo);
+
+        // Enviar la imagen al backend para predecir los dígitos
+        this.ConsultaService.consNumero(formData).subscribe(
+          (respuesta) => {
+            Loading.remove(); // Quita animación de carga
+            this.resultadoBackend = respuesta.digitos_detectados;
+            console.log(this.resultadoBackend)
+            // const generado = this.convertirNumeroADigitos(this.numeroAleatorio);
+            // this.esCorrecto = JSON.stringify(this.resultadoBackend) === JSON.stringify(generado);
+            this.esCorrecto = true;
+
+               // Convierte el array de dígitos a un número (como una cadena de texto)
+          const numero = this.convertirArrayANumero(this.resultadoBackend);
+          
+          // Convierte el número a texto
+          this.numeroLetras = this.convertirNumeroALetras(numero);
+
+          // Calcula el factorial de la cifra
+          this.factorial = this.calcularFactorial(numero);
+
+          // Mostrar los resultados
+          // console.log('Número en letras:', numeroEnLetras);
+          // console.log('Factorial:', factorial);
+
+          // const data = {
+          //   numero: (numero).toString(),
+          //   factorial: (this.factorial).toString(),
+          //   nombre_estudiante: "Rolando Perez",
+          // };
+      
+          // this.ConsultaService.Insert(data).subscribe(
+          //   (info) => {
+          //     console.log('Respuesta del backend:', info);
+          //   },
+          //   (error) => {
+          //     console.error('Error al insertar datos:', error);
+          //   }
+          // );
+
+
+            if (this.esCorrecto) {
+              this.not_success('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}, ${this.numeroLetras}, ${this.factorial}`);
+            } else {
+              this.not_warning('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}`);
+            }
+          },
+          (error) => {
+            Loading.remove();
+            console.error('❌ Error al enviar la imagen:', error);
+          }
+        );
+      }
+    }, 'image/png');
+  }
+
   // Muestra una notificación tipo "warning"
   not_warning(text: any) {
     Report.warning('', `${text}`, 'Listo');
@@ -194,4 +325,50 @@ export class AppComponent {
   not_success(text: any) {
     Report.success('', `${text}`, 'Listo');
   }
+
+
+  // Método para procesar la imagen y convertirla a escala de grises
+
+
+// Convierte el array de dígitos a un número
+convertirArrayANumero(array: number[]): number {
+  return parseInt(array.join(''), 10); // Convierte el array de números en un número
+}
+
+// Convierte un número a su equivalente en palabras
+convertirNumeroALetras(numero: number): string {
+  const numerosEnLetras: { [key: number]: string } = {
+    0: 'cero',
+    1: 'uno',
+    2: 'dos',
+    3: 'tres',
+    4: 'cuatro',
+    5: 'cinco',
+    6: 'seis',
+    7: 'siete',
+    8: 'ocho',
+    9: 'nueve',
+  };
+
+  return numero
+    .toString()
+    .split('')
+    .map(digit => numerosEnLetras[parseInt(digit, 10)])
+    .join(' '); // Convierte cada dígito a su palabra correspondiente y las une con espacios
+}
+
+// Función para calcular el factorial de un número
+calcularFactorial(numero: number): string {
+  // Función recursiva para calcular el factorial
+  if (numero <= 1) {
+    return '1'; // El factorial de 0 o 1 es 1
+  } else {
+    const factorialRecursivo = BigInt(numero) * BigInt(this.calcularFactorial(numero - 1)); // Llamada recursiva para calcular el factorial
+    const factorialStr = factorialRecursivo.toString(); // Convertir el BigInt a string
+
+    // Mostrar solo los primeros 10 dígitos del factorial (puedes cambiar el número 10 a la cantidad de dígitos que necesites)
+    return factorialStr.slice(0, 10); 
+  }
+}
+
 }

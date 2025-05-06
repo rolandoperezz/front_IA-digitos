@@ -16,6 +16,24 @@
         <button class="button is-info" (click)="limpiarCanvas()">Limpiar</button>
         <button class="button is-info" (click)="validarCanvas()">Validar Número</button>
       </div>
+
+      <!-- <div class="camera-container">
+        <video #video id="video" width="100%" height="auto" autoplay></video>
+<canvas #overlay id="overlay" width="100%" height="auto" style="position: absolute; top: 0; left: 0;"></canvas>
+<button class="button is-info" (click)="capturarImagen()">Capturar Imagen</button>
+
+      </div> -->
+
+      <div class="file-upload">
+        <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+        <br>
+        <button class="button is-info" (click)="capturarImagen()">Capturar Imagen</button>
+      </div>
+
+
+
+      
+
     </div>
   </div>
 </div>
