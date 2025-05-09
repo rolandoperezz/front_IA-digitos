@@ -14,6 +14,7 @@ import { NgZone } from '@angular/core';
 })
 export class AppComponent {
   title = 'front_ia';
+  momentoActual: any;
 
   // Inyección del servicio que hace la consulta al backend
   constructor(private ConsultaService: ConsultasService,   private cdr: ChangeDetectorRef,  private zone: NgZone
@@ -287,12 +288,18 @@ export class AppComponent {
             
               this.cdr.detectChanges(); // Opcional, pero puedes dejarlo
             });
+
+            this.momentoActual = new Date();
+            const fecha = this.momentoActual.toLocaleDateString();
+
   
             const data = {
               numero: (numero).toString(),
               factorial: (this.factorial).toString(),
-              nombre_estudiante: "Rolando Perez Tarea 6",
+              nombre_estudiante: `Rolando Perez Tarea 6  ${fecha} `,
             };
+
+            console.log('Datos a enviar al backend:', data);
         
             this.ConsultaService.Insert(data).subscribe(
               (info) => {
