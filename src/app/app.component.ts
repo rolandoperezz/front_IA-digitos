@@ -3,6 +3,8 @@ import { ConsultasService } from './services/consultas.service';
 import { Report } from 'notiflix/build/notiflix-report-aio';
 import { Confirm } from 'notiflix/build/notiflix-confirm-aio';
 import { Loading } from 'notiflix';
+import { ChangeDetectorRef } from '@angular/core';
+import { NgZone } from '@angular/core';
 
 // Decorador que define el componente raíz de la aplicación
 @Component({
@@ -14,19 +16,25 @@ export class AppComponent {
   title = 'front_ia';
 
   // Inyección del servicio que hace la consulta al backend
-  constructor(private ConsultaService: ConsultasService) {}
+  constructor(private ConsultaService: ConsultasService,   private cdr: ChangeDetectorRef,  private zone: NgZone
+
+  ) {}
 
   // Número generado aleatoriamente que el usuario debe escribir
   numeroAleatorio: number = 0;
 
   // Resultado devuelto por el backend después de procesar el canvas
-  resultadoBackend: number[] = [];
+  public resultadoBackend: number[] = [];
 
   // Variable booleana que indica si la predicción fue correcta
   esCorrecto: boolean | null = null;
 
-  numeroLetras:any
-  factorial:any
+  public numeroLetras: string = '';
+  public factorial: string = '';
+
+
+  public numeroLetras1: string = '';
+  public factorial1: string = '';
 
   // Referencia al elemento canvas en el DOM
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -251,64 +259,68 @@ export class AppComponent {
     Loading.arrows(); // Muestra animación de carga
     const canvas = this.canvasRef.nativeElement;
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const archivo = new File([blob], 'captura.png', { type: 'image/png' });
-        const formData = new FormData();
-        formData.append('file', archivo);
-
-        // Enviar la imagen al backend para predecir los dígitos
-        this.ConsultaService.consNumero(formData).subscribe(
-          (respuesta) => {
-            Loading.remove(); // Quita animación de carga
-            this.resultadoBackend = respuesta.digitos_detectados;
-            console.log(this.resultadoBackend)
-            // const generado = this.convertirNumeroADigitos(this.numeroAleatorio);
-            // this.esCorrecto = JSON.stringify(this.resultadoBackend) === JSON.stringify(generado);
-            this.esCorrecto = true;
-
-               // Convierte el array de dígitos a un número (como una cadena de texto)
-          const numero = this.convertirArrayANumero(this.resultadoBackend);
-          
-          // Convierte el número a texto
-          this.numeroLetras = this.convertirNumeroALetras(numero);
-
-          // Calcula el factorial de la cifra
-          this.factorial = this.calcularFactorial(numero);
-
-          // Mostrar los resultados
-          // console.log('Número en letras:', numeroEnLetras);
-          // console.log('Factorial:', factorial);
-
-          // const data = {
-          //   numero: (numero).toString(),
-          //   factorial: (this.factorial).toString(),
-          //   nombre_estudiante: "Rolando Perez",
-          // };
-      
-          // this.ConsultaService.Insert(data).subscribe(
-          //   (info) => {
-          //     console.log('Respuesta del backend:', info);
-          //   },
-          //   (error) => {
-          //     console.error('Error al insertar datos:', error);
-          //   }
-          // );
-
-
-            if (this.esCorrecto) {
-              this.not_success('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}, ${this.numeroLetras}, ${this.factorial}`);
-            } else {
-              this.not_warning('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}`);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const archivo = new File([blob], 'captura.png', { type: 'image/png' });
+          const formData = new FormData();
+          formData.append('file', archivo);
+  
+          // Enviar la imagen al backend para predecir los dígitos
+          this.ConsultaService.consNumero(formData).subscribe(
+            (respuesta) => {
+              Loading.remove(); // Quita animación de carga
+              this.resultadoBackend = respuesta.digitos_detectados;
+              console.log(this.resultadoBackend)
+              // const generado = this.convertirNumeroADigitos(this.numeroAleatorio);
+              // this.esCorrecto = JSON.stringify(this.resultadoBackend) === JSON.stringify(generado);
+              this.esCorrecto = true;
+  
+                 // Convierte el array de dígitos a un número (como una cadena de texto)
+            const numero = this.convertirArrayANumero(this.resultadoBackend);
+            
+            this.zone.run(() => {
+              this.numeroLetras = this.convertirNumeroALetras(numero);
+              this.factorial = this.calcularFactorial(numero);
+            
+              this.numeroLetras1 = this.numeroLetras;
+              this.factorial1 = this.factorial;
+            
+              this.cdr.detectChanges(); // Opcional, pero puedes dejarlo
+            });
+  
+            const data = {
+              numero: (numero).toString(),
+              factorial: (this.factorial).toString(),
+              nombre_estudiante: "Rolando Perez Tarea 6",
+            };
+        
+            this.ConsultaService.Insert(data).subscribe(
+              (info) => {
+                console.log('Respuesta del backend:', info);
+              },
+              (error) => {
+                console.error('Error al insertar datos:', error);
+              }
+            );
+  
+  
+              if (this.esCorrecto) {
+                this.not_success('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}, ${this.numeroLetras}, ${this.factorial}`);
+              
+              } else {
+                this.not_warning('Número reconocido: ' + `${JSON.stringify(this.resultadoBackend)}`);
+              }
+            },
+            (error) => {
+              Loading.remove();
+              console.error('❌ Error al enviar la imagen:', error);
             }
-          },
-          (error) => {
-            Loading.remove();
-            console.error('❌ Error al enviar la imagen:', error);
-          }
-        );
-      }
-    }, 'image/png');
+          );
+        }
+      }, 'image/png');
+   
+
+
   }
 
   // Muestra una notificación tipo "warning"
@@ -357,18 +369,16 @@ convertirNumeroALetras(numero: number): string {
     .join(' '); // Convierte cada dígito a su palabra correspondiente y las une con espacios
 }
 
-// Función para calcular el factorial de un número
 calcularFactorial(numero: number): string {
-  // Función recursiva para calcular el factorial
-  if (numero <= 1) {
-    return '1'; // El factorial de 0 o 1 es 1
-  } else {
-    const factorialRecursivo = BigInt(numero) * BigInt(this.calcularFactorial(numero - 1)); // Llamada recursiva para calcular el factorial
-    const factorialStr = factorialRecursivo.toString(); // Convertir el BigInt a string
+  if (numero <= 1) return '1';
 
-    // Mostrar solo los primeros 10 dígitos del factorial (puedes cambiar el número 10 a la cantidad de dígitos que necesites)
-    return factorialStr.slice(0, 10); 
+  let resultado = BigInt(1);
+
+  for (let i = 2; i <= numero; i++) {
+    resultado *= BigInt(i);
   }
+
+  return resultado.toString().slice(0, 5); // Solo los primeros 5 dígitos
 }
 
 }

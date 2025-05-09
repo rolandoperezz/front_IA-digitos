@@ -1,40 +1,40 @@
-<br>
-<br>
-<br>
 <div class="columns is-mobile is-multiline is-centered">
-  <div class="column is-12-mobile is-10-tablet is-8-desktop is-6-widescreen">
+  <div class="column is-12-mobile is-10-tablet is-8-desktop is-10-widescreen">
+    <h1>Reconomiento de Números: Rolando Perez 3590-18-24604</h1>
     <div class="pizarra-container">
-      <p class="numero-a-reconocer">Número a reconocer: <strong>{{ numeroAleatorio }}</strong></p>
+      <div class="columns is-vcentered">
+        <!-- Columna izquierda: Canvas -->
+        <div class="column is-6 has-text-centered">
+          <div class="canvas-wrapper" style="display: inline-block;">
+            <!-- Canvas con proporción parecida a la imagen -->
+            <canvas #canvas id="pizarra" width="600" height="250" style="border: 2px solid #ccc; background: white;"></canvas>
+          </div>
 
-      <!-- Canvas con contenedor para control del tamaño -->
-      <div class="canvas-wrapper">
-        <canvas #canvas id="pizarra"></canvas>
+          <!-- Botones debajo del canvas -->
+          <div class="botones mt-4">
+            <button class="button is-info mx-1" (click)="limpiarCanvas()">Limpiar</button>
+            <button class="button is-info mx-1" (click)="capturarImagen()">Validar Número</button>
+          </div>
+
+          <!-- Carga de archivo -->
+          <div class="file-upload mt-3">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+          </div>
+        </div>
+
+        <!-- Columna derecha: Resultados -->
+        <div class="column is-6">
+          <div class="box">
+            <p><strong>Número en Letras:</strong> {{ numeroLetras1 }}</p>
+            <p><strong>Factorial:</strong> {{ factorial1 }}</p>
+          </div>
+
+          <!-- Texto de instrucciones debajo -->
+          <div class="content mt-4">
+            <p><strong> Nota: Dibuja un número del 0 al 9 en el recuadro de la izquierda o sube una imagen y haz clic en "Validar Número". Asegúrate de que el trazo sea claro para mejorar la precisión del reconocimiento. El reconocimiento ha sido entrado con el modelo MNIST</strong> </p>
+          </div>
+        </div>
       </div>
-
-      <!-- Botones -->
-      <div class="botones">
-        <button class="button is-info" (click)="limpiarCanvas()">Limpiar</button>
-        <button class="button is-info" (click)="validarCanvas()">Validar Número</button>
-      </div>
-
-      <!-- <div class="camera-container">
-        <video #video id="video" width="100%" height="auto" autoplay></video>
-<canvas #overlay id="overlay" width="100%" height="auto" style="position: absolute; top: 0; left: 0;"></canvas>
-<button class="button is-info" (click)="capturarImagen()">Capturar Imagen</button>
-
-      </div> -->
-
-      <div class="file-upload">
-        <input type="file" accept="image/*" (change)="onFileSelected($event)" />
-        <br>
-        <button class="button is-info" (click)="capturarImagen()">Capturar Imagen</button>
-      </div>
-
-
-
-      
-
     </div>
   </div>
 </div>
-

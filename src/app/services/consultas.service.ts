@@ -5,8 +5,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ConsultasService {
-  urlback='http://127.0.0.1:8000/'
-  //urlback='https://fastapi-digitos.onrender.com/'
+  //rlback='http://127.0.0.1:8000/'
+  urlback='https://fastapi-digitos.onrender.com/'
   constructor(private http: HttpClient) { }
 
 
